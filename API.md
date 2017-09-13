@@ -2,7 +2,7 @@
 ##### This API specification is for The 0cean and will be offered in addition to the [0x standard relayer API](https://github.com/0xProject/standard-relayer-api)
 
 ## Terminology
-* **Funnel Address** : The Funnel Address is an Ethereum address controlled by The 0cean.  Any orders (mathcing or target) submitted to the The 0cean's orderbook must specify it as the taker.  
+* **Funnel Address** : The Funnel Address is an Ethereum address controlled by The 0cean.  Any orders (matching or target) submitted to the The 0cean's orderbook must specify it as the taker.  
 * **Target Order** : A 0x order submitted as an offer for a trade of tokens.  Its placed in the orderbook and publicized along with all other target orders.
 * **Matching Order** : A 0x order submitted as a request to accept a target order.  If a target order is available, both will be filled in an atomic fashion by the Funnel Address.
 
