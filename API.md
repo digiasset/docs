@@ -105,7 +105,8 @@ _Payload:_
         state: 'open|expired|filled|unfunded|pending',
         amountRemaining: <0 to takerTokenAmount>
       },
-      targetOrderHash? : ‘<>’
+      takerTokenFillAmount : '<>',
+      targetOrderHash? : '<>'
     },
     ...
   ]
