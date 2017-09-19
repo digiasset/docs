@@ -11,7 +11,7 @@ limitOrder(tokenToSell,
            tokenToBuy,
            amount,
            price)
-           ```
+```
 Creates, signs and submits a 0x order to The 0cean's specification.
 
 ##### marketOrder
