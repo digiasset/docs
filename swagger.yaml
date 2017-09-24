@@ -14,134 +14,34 @@ basePath: /api/v0
 tags:
   - name: orders
     description: 'Placing, retreiving and filling'
-    externalDocs:
-      description: Find out more
-      url: 'http://the0cean.com'
   - name: 0x relayer API
     description: The standard API from 0x
     externalDocs:
       description: Docs on github
       url: 'https://github.com/0xProject/standard-relayer-api'
+  - name: history
+    description: historical prices and volumes
+  - name: subscription
 schemes:
   - https
 paths:
-  /order/{orderHash}:
+  /token_pairs:
     get:
       tags:
-        - orders
-      summary: Gets order book for asset pair
+        - 0x relayer API
+      summary: Retrieves all tradeable token pairs
       description: ''
-      x-swagger-router-controller: OrderController
-      operationId: getOrder
+      operationId: getAssetPairs
       produces:
         - application/json
-      parameters:
-        - name: orderHash
-          in: path
-          description: "The orderHash"
-          required: true
-          type: "string"
-          format: "int64"
       responses:
         '200':
           description: successful operation
           schema:
-            $ref: '#/definitions/SignedOrder'
+            $ref: '#/definitions/TokenPairs'
       security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  /order:
-    post:
-      tags:
-        - orders
-        - 0x relayer API
-      summary: Submit a signed order to the orderbook
-      description: ''
-      operationId: postOrder
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: The signed order object
-          required: true
-          schema:
-            $ref: '#/definitions/SignedOrder'
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  /cancel:
-    post:
-      tags:
-        - orders
-      summary: Cancel some or all of the availablitlity on an existing order
-      description: ''
-      operationId: cancelPost
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: The cancelation request
-          required: true
-          schema:
-            type: object
-            required:
-              - orderHash
-              - takerAmount
-            properties:
-              orderHash:
-                $ref: '#/definitions/OrderHash'
-              takerAmount:
-                $ref: '#/definitions/NumberString'
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
-  /match:
-    post:
-      tags:
-        - orders
-      summary: Submit a signed order to be matched with existing orders
-      description: ''
-      operationId: postMatch
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: The match request array
-          required: true
-          schema:
-            type: object
-            required:
-              - matchRequests
-            properties:
-              matchRequests:
-                type: array
-                items:
-                  $ref: '#/definitions/MatchRequest'
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
+        - 0cean_auth:
+            - 'read:orders'
   /order_book:
     get:
       tags:
@@ -179,9 +79,125 @@ paths:
           schema:
             $ref: '#/definitions/OrderBook'
       security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
+        - 0cean_auth:
+            - 'write:orders'
+            - 'read:orders'
+  /order/{orderHash}:
+    get:
+      tags:
+        - orders
+        - 0x relayer API
+      summary: Gets an order
+      description: ''
+      operationId: getOrder
+      produces:
+        - application/json
+      parameters:
+        - name: orderHash
+          in: path
+          description: "The orderHash"
+          required: true
+          type: "string"
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SignedOrder'
+      security:
+        - 0cean_auth:
+            - 'write:orders'
+            - 'read:orders'
+  /order:
+    post:
+      tags:
+        - orders
+        - 0x relayer API
+      summary: Submit a signed order to the orderbook
+      description: ''
+      operationId: postOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The signed order object
+          required: true
+          schema:
+            $ref: '#/definitions/SignedOrder'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - 0cean_auth:
+            - 'write:orders'
+            - 'read:orders'
+  /cancel:
+    post:
+      tags:
+        - orders
+      summary: Cancel some or all of the availablitlity on an existing order
+      description: ''
+      operationId: cancelPost
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The cancelation request
+          required: true
+          schema:
+            type: object
+            required:
+              - orderHash
+              - takerAmount
+            properties:
+              orderHash:
+                $ref: '#/definitions/OrderHash'
+              takerAmount:
+                $ref: '#/definitions/NumberString'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - 0cean_auth:
+            - 'write:orders'
+            - 'read:orders'
+  /match:
+    post:
+      tags:
+        - orders
+      summary: Submit a signed order to be matched with existing orders
+      description: ''
+      operationId: postMatch
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The match request array
+          required: true
+          schema:
+            type: object
+            required:
+              - matchRequests
+            properties:
+              matchRequests:
+                type: array
+                items:
+                  $ref: '#/definitions/MatchRequest'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - 0cean_auth:
+            - 'write:orders'
+            - 'read:orders'
   /candlesticks:
     get:
       tags:
@@ -219,13 +235,13 @@ paths:
           schema:
             $ref: '#/definitions/OrderBook'
 securityDefinitions:
-  petstore_auth:
+  0cean_auth:
     type: oauth2
-    authorizationUrl: 'http://petstore.swagger.io/oauth/dialog'
+    authorizationUrl: 'http://the0cean.com/oauth/dialog'
     flow: implicit
     scopes:
-      'write:pets': modify pets in your account
-      'read:pets': read your pets
+      'write:orders': create modify and fill orders
+      'read:orders': read existing orders and history
 definitions:
   EthAddress:
     type: string
@@ -337,6 +353,42 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OrderBookOrder'
+  TokenPairs:
+    type: array
+    items:
+      $ref: '#/definitions/TokenPair'
+  TokenPair:
+    type: object
+    required:
+      - tokenA
+      - tokenB
+    properties:
+      tokenA:
+        $ref: '#/definitions/Token'
+      tokenB:
+        $ref: '#/definitions/Token'
+  Token:
+    type: object
+    required:
+      - address
+      - symbol
+      - decimals
+      - minAmount
+      - maxAmount
+      - precision
+    properties:
+      address:
+        $ref: '#/definitions/EthAddress'
+      symbol:
+        type: string
+      decimals:
+        type: number
+      minAmount:
+        type: string
+      maxAmount:
+        type: string
+      precision:
+        type: number
 externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'
