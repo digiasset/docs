@@ -57,7 +57,7 @@ paths:
           description: The token specified as the makerToken for all orders in the book
           required: true
           type: string
-        - name: taker  Token
+        - name: takerToken
           in: query
           description: The token specified as the takerToken for all orders in the book
           required: true
@@ -71,7 +71,7 @@ paths:
         - name: priceWindow
           in: query
           description: If specified the order book list will be limited to orders with prices less than the best price plus the priceWindow
-          required: true
+          required: false
           type: number
       responses:
         '200':
@@ -266,8 +266,8 @@ definitions:
     type: object
     required:
       - exchange
-      - maker
-      - taker
+      - makerAddress
+      - takerAddress
       - makerToken
       - takerToken
       - feeRecipient
@@ -282,9 +282,9 @@ definitions:
     properties:
       exchange:
         $ref: '#/definitions/EthAddress'
-      maker:
+      makerAddress:
         $ref: '#/definitions/EthAddress'
-      taker:
+      takerAddress:
         $ref: '#/definitions/EthAddress'
       makerToken:
         $ref: '#/definitions/EthAddress'
@@ -324,7 +324,7 @@ definitions:
     properties:
       price:
         type: number
-      taker:
+      takerAddress:
         $ref: '#/definitions/EthAddress'
       exchange:
         $ref: '#/definitions/EthAddress'
