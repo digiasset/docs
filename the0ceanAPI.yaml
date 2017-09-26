@@ -78,6 +78,10 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/OrderBook'
+        '400':
+          description: invalid token or token pair
+          schema:
+            $ref: '#/definitions/ErrorModel'
       # security:
       #   - 0cean_auth:
       #       - 'read:orders'
@@ -103,6 +107,14 @@ paths:
           schema:
             $ref: '#/definitions/SignedOrder'
       # security:
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorModel'
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorModel'
       #   - 0cean_auth:
       #       - 'read:orders'
     delete:
@@ -186,8 +198,10 @@ paths:
           schema:
             $ref: '#/definitions/SignedOrder'
       responses:
-        '405':
+        '400':
           description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
       # security:
       #   - 0cean_auth:
       #       - 'write:orders'
@@ -218,8 +232,10 @@ paths:
                 items:
                   $ref: '#/definitions/MatchRequest'
       responses:
-        '405':
+        '400':
           description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
       # security:
       #   - 0cean_auth:
       #       - 'write:orders'
@@ -263,6 +279,10 @@ paths:
               array
             items:
               $ref: '#/definitions/CandleStick'
+        '400':
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
       # security:
       #   - 0cean_auth:
       #       - 'read:orders'
@@ -275,6 +295,16 @@ paths:
   #     'write:orders': create modify and fill orders
   #     'read:orders': read existing orders and history
 definitions:
+  ErrorModel:
+    type: object
+    required:
+    - message
+    - code
+    properties:
+      message:
+        type: string
+      code:
+        type: integer
   EthAddress:
     type: string
     pattern: '^(0x)?[0-9a-fA-F]{40}$'
