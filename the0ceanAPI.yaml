@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  description: 'This API specification is for [The 0cean](www.the0cean.com)'
+  description: 'This API specification is for [The 0cean](https://the0cean.com)'
   version: 0.3.0
   title: The 0cean
   # termsOfService: 'http://the0cean.com/terms/'
@@ -9,7 +9,7 @@ info:
   # license:
   #   name: Apache 2.0
   #   url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-host: localhost:10010
+# host: localhost:1001
 basePath: /api/v0
 tags:
   - name: orders
@@ -21,7 +21,7 @@ tags:
       url: 'https://github.com/0xProject/standard-relayer-api'
   - name: history
     description: historical prices and volumes
-  - name: subscription
+  # - name: subscription
 schemes:
   - https
 paths:
@@ -29,7 +29,7 @@ paths:
     get:
       tags:
         - 0x relayer API
-      summary: Retrieves all tradeable token pairs
+      summary: Retrieves All Tradeable Token Pairs
       description: ''
       operationId: getAssetPairs
       produces:
@@ -39,14 +39,14 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/TokenPairs'
-      security:
-        - 0cean_auth:
-            - 'read:orders'
+      # security:
+      #   - 0cean_auth:
+      #       - 'read:orders'
   /order_book:
     get:
       tags:
         - orders
-      summary: Gets order book for asset pair
+      summary: Gets Order Book for Token Pair
       description: ''
       operationId: getOrderBook
       produces:
@@ -78,15 +78,15 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/OrderBook'
-      security:
-        - 0cean_auth:
-            - 'read:orders'
+      # security:
+      #   - 0cean_auth:
+      #       - 'read:orders'
   /order/{orderHash}:
     get:
       tags:
         - orders
         - 0x relayer API
-      summary: Gets an order
+      summary: Gets an Order
       description: ''
       operationId: getOrder
       produces:
@@ -102,13 +102,13 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/SignedOrder'
-      security:
-        - 0cean_auth:
-            - 'read:orders'
+      # security:
+      #   - 0cean_auth:
+      #       - 'read:orders'
     delete:
       tags:
         - orders
-      summary: Cancel entire order
+      summary: Cancel Entire Order
       description: ''
       operationId: deleteOrder
       consumes:
@@ -130,14 +130,14 @@ paths:
       responses:
         '405':
           description: Invalid input
-      security:
-        - 0cean_auth:
-            - 'write:orders'
-            - 'read:orders'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
     patch:
       tags:
         - orders
-      summary: Cancel some or all of the availablitlity on an existing order
+      summary: Cancel Some or All of an Existing Order
       description: ''
       operationId: patchPost
       consumes:
@@ -162,16 +162,16 @@ paths:
       responses:
         '405':
           description: Invalid input
-      security:
-        - 0cean_auth:
-            - 'write:orders'
-            - 'read:orders'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
   /order:
     post:
       tags:
         - orders
         - 0x relayer API
-      summary: Submit a signed order to the orderbook
+      summary: Post a Signed Order to the Orderbook
       description: ''
       operationId: postOrder
       consumes:
@@ -188,15 +188,15 @@ paths:
       responses:
         '405':
           description: Invalid input
-      security:
-        - 0cean_auth:
-            - 'write:orders'
-            - 'read:orders'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
   /match:
     post:
       tags:
         - orders
-      summary: Submit a signed order to be matched with existing orders
+      summary: Post a Signed Order to be Matched with Existing Orders
       description: ''
       operationId: postMatch
       consumes:
@@ -220,15 +220,15 @@ paths:
       responses:
         '405':
           description: Invalid input
-      security:
-        - 0cean_auth:
-            - 'write:orders'
-            - 'read:orders'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
   /candlesticks:
     get:
       tags:
         - history
-      summary: Gets candlestick history
+      summary: Get Candlestick History
       description: ''
       operationId: getCandleSticks
       produces:
@@ -263,17 +263,17 @@ paths:
               array
             items:
               $ref: '#/definitions/CandleStick'
-      security:
-        - 0cean_auth:
-            - 'read:orders'
-securityDefinitions:
-  0cean_auth:
-    type: oauth2
-    authorizationUrl: 'http://the0cean.com/oauth/dialog'
-    flow: implicit
-    scopes:
-      'write:orders': create modify and fill orders
-      'read:orders': read existing orders and history
+      # security:
+      #   - 0cean_auth:
+      #       - 'read:orders'
+# securityDefinitions:
+  # 0cean_auth:
+  #   type: oauth2
+  #   authorizationUrl: 'http://the0cean.com/oauth/dialog'
+  #   flow: implicit
+  #   scopes:
+  #     'write:orders': create modify and fill orders
+  #     'read:orders': read existing orders and history
 definitions:
   EthAddress:
     type: string
