@@ -1,14 +1,14 @@
 swagger: '2.0'
 info:
-  description: 'This API specification is for [The 0cean](www.the0cean.com) and will be offered in addition to the [0x standard relayer API](https://github.com/0xProject/standard-relayer-api)'
-  version: 1.0.0
+  description: 'This API specification is for [The 0cean](www.the0cean.com)'
+  version: 0.3.0
   title: The 0cean
-  termsOfService: 'http://the0cean.com/terms/'
+  # termsOfService: 'http://the0cean.com/terms/'
   contact:
     email: dev@the0cean.com
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  # license:
+  #   name: Apache 2.0
+  #   url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: localhost:10010
 basePath: /api/v0
 tags:
@@ -80,7 +80,6 @@ paths:
             $ref: '#/definitions/OrderBook'
       security:
         - 0cean_auth:
-            - 'write:orders'
             - 'read:orders'
   /order/{orderHash}:
     get:
@@ -264,6 +263,9 @@ paths:
               array
             items:
               $ref: '#/definitions/CandleStick'
+      security:
+        - 0cean_auth:
+            - 'read:orders'
 securityDefinitions:
   0cean_auth:
     type: oauth2
@@ -436,6 +438,3 @@ definitions:
         $ref: '#/definitions/NumberString'
       weightedAverage:
         type: number
-externalDocs:
-  description: Find out more about Swagger
-  url: 'http://swagger.io'
