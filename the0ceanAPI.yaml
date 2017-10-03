@@ -219,18 +219,11 @@ paths:
         - application/json
       parameters:
         - in: body
-          name: body
-          description: The match request array
+          name: matchRequest
+          description: The match request array.  One and only one of marketOrderID and targetOrderHash should be included.
           required: true
           schema:
-            type: object
-            required:
-              - matchRequests
-            properties:
-              matchRequests:
-                type: array
-                items:
-                  $ref: '#/definitions/MatchRequest'
+            $ref: '#/definitions/MatchRequest'
       responses:
         '400':
           description: Invalid input
@@ -285,6 +278,48 @@ paths:
             $ref: '#/definitions/ErrorModel'
       # security:
       #   - 0cean_auth:
+      #       - 'read:orders'
+  /marketOrder:
+    post:
+      tags:
+        - orders
+      summary: Find and reserve orders needed to complete a market order.  Subsequent call to `match' must be called with the `marketOrderID` that is returned.
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: matchRequest
+          description: The match request array.  One and only one of marketOrderID and targetOrderHash should be included.
+          required: true
+          schema:
+            type: object
+            properties:
+              baseToken:
+                $ref: '#/definitions/EthAddress'
+              quoteToken:
+                $ref: '#/definitions/EthAddress'
+              baseTokenAmount:
+                $ref: '#/definitions/NumberString'
+      responses:
+        '400':
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              marketOrderID:
+                type: string
+              unsignedOrder:
+                $ref: '#/definitions/UnsignedOrder'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
       #       - 'read:orders'
 # securityDefinitions:
   # 0cean_auth:
@@ -372,15 +407,59 @@ definitions:
         $ref: '#/definitions/ECSignature'
     xml:
       name: SignedOrder
+  UnsignedOrder:
+    type: object
+    required:
+      - exchange
+      - makerAddress
+      - takerAddress
+      - makerToken
+      - takerToken
+      - feeRecipient
+      - makerTokenAmount
+      - takerTokenAmount
+      - makerFee
+      - takerFee
+      - expirationTimestampInSec
+      - salt
+    properties:
+      exchange:
+        $ref: '#/definitions/EthAddress'
+      makerAddress:
+        $ref: '#/definitions/EthAddress'
+      takerAddress:
+        $ref: '#/definitions/EthAddress'
+      makerToken:
+        $ref: '#/definitions/EthAddress'
+      takerToken:
+        $ref: '#/definitions/EthAddress'
+      feeRecipient:
+        $ref: '#/definitions/EthAddress'
+      makerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      takerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      makerFee:
+        $ref: '#/definitions/NumberString'
+      takerFee:
+        $ref: '#/definitions/NumberString'
+      expirationTimestampInSec:
+        $ref: '#/definitions/NumberString'
+      salt:
+        $ref: '#/definitions/NumberString'
+    xml:
+      name: UnsignedOrder
   MatchRequest:
     type: object
+    required:
+      - signedOrder
     properties:
-      order:
+      signedOrder:
         $ref: '#/definitions/SignedOrder'
+      marketOrderID:
+        type: string
       targetOrderHash:
         $ref: '#/definitions/OrderHash'
-      takerTokenFillAmount:
-        $ref: '#/definitions/NumberString'
   OrderBookOrder:
     type: object
     properties:
