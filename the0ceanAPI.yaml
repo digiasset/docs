@@ -279,7 +279,7 @@ paths:
       # security:
       #   - 0cean_auth:
       #       - 'read:orders'
-  /marketOrder:
+  /market_order:
     post:
       tags:
         - orders
