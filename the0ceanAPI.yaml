@@ -1,0 +1,547 @@
+swagger: '2.0'
+info:
+  description: 'This API specification is for [The 0cean](https://the0cean.com)'
+  version: 0.3.0
+  title: The 0cean
+  # termsOfService: 'http://the0cean.com/terms/'
+  contact:
+    email: dev@the0cean.com
+  # license:
+  #   name: Apache 2.0
+  #   url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+# host: localhost:1001
+basePath: /api/v0
+tags:
+  - name: orders
+    description: 'Placing, retreiving and filling'
+  - name: 0x relayer API
+    description: The standard API from 0x
+    externalDocs:
+      description: Docs on github
+      url: 'https://github.com/0xProject/standard-relayer-api'
+  - name: history
+    description: historical prices and volumes
+  # - name: subscription
+schemes:
+  - https
+paths:
+  /token_pairs:
+    get:
+      tags:
+        - 0x relayer API
+      summary: Retrieves All Tradeable Token Pairs
+      description: ''
+      operationId: getAssetPairs
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/TokenPairs'
+      # security:
+      #   - 0cean_auth:
+      #       - 'read:orders'
+  /order_book:
+    get:
+      tags:
+        - orders
+      summary: Gets Order Book for Token Pair
+      description: ''
+      operationId: getOrderBook
+      produces:
+        - application/json
+      parameters:
+        - name: baseToken
+          in: query
+          description: The base token for the book
+          required: true
+          type: string
+        - name: quoteToken
+          in: query
+          description: The quote token for the book
+          required: true
+          type: string
+        - name: depth
+          in: query
+          description: If specified, the number of bids and the number of asks that will be returned
+          required: false
+          type: number
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/OrderBook'
+        '400':
+          description: invalid token or token pair
+          schema:
+            $ref: '#/definitions/ErrorModel'
+      # security:
+      #   - 0cean_auth:
+      #       - 'read:orders'
+  /order/{orderHash}:
+    get:
+      tags:
+        - orders
+        - 0x relayer API
+      summary: Gets an Order
+      description: ''
+      operationId: getOrder
+      produces:
+        - application/json
+      parameters:
+        - name: orderHash
+          in: path
+          description: "The orderHash"
+          required: true
+          type: "string"
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SignedOrder'
+      # security:
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorModel'
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorModel'
+      #   - 0cean_auth:
+      #       - 'read:orders'
+    delete:
+      tags:
+        - orders
+      summary: Cancel Entire Order
+      description: ''
+      operationId: deleteOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The cancelation request
+          required: true
+          schema:
+            type: object
+            required:
+              - orderHash
+            properties:
+              orderHash:
+                $ref: '#/definitions/OrderHash'
+      responses:
+        '405':
+          description: Invalid input
+        '404':
+          description: Not found
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
+    patch:
+      tags:
+        - orders
+      summary: Cancel Some or All of an Existing Order
+      description: ''
+      operationId: patchPost
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The cancelation request
+          required: true
+          schema:
+            type: object
+            required:
+              - orderHash
+              - takerAmount
+            properties:
+              orderHash:
+                $ref: '#/definitions/OrderHash'
+              takerAmount:
+                $ref: '#/definitions/NumberString'
+      responses:
+        '405':
+          description: Invalid input
+        '404':
+          description: Not found
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
+  /order:
+    post:
+      tags:
+        - orders
+        - 0x relayer API
+      summary: Post a Signed Order to the Orderbook
+      description: ''
+      operationId: postOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The signed order object
+          required: true
+          schema:
+            $ref: '#/definitions/SignedOrder'
+      responses:
+        '400':
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
+  /match:
+    post:
+      tags:
+        - orders
+      summary: Post a Signed Order to be Matched with Existing Orders
+      description: ''
+      operationId: postMatch
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: matchRequest
+          description: The match request array.  One and only one of marketOrderID and targetOrderHash should be included.
+          required: true
+          schema:
+            $ref: '#/definitions/MatchRequest'
+      responses:
+        '400':
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
+  /candlesticks:
+    get:
+      tags:
+        - history
+      summary: Get Candlestick History
+      description: ''
+      operationId: getCandleSticks
+      produces:
+        - application/json
+      parameters:
+        - name: makerToken
+          in: query
+          description: The token specified as the makerToken for all orders in the book
+          required: true
+          type: string
+        - name: taker  Token
+          in: query
+          description: The token specified as the takerToken for all orders in the book
+          required: true
+          type: string
+        - name: bothSides
+          in: query
+          description: Whether to return the opposite side of the orderbook with maker and taker tokens reversed
+          required: false
+          type: boolean
+          default: false
+        - name: priceWindow
+          in: query
+          description: If specified the order book list will be limited to orders with prices less than the best price plus the priceWindow
+          required: true
+          type: number
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type:
+              array
+            items:
+              $ref: '#/definitions/CandleStick'
+        '400':
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
+      # security:
+      #   - 0cean_auth:
+      #       - 'read:orders'
+  /market_order:
+    post:
+      tags:
+        - orders
+      summary: Find and reserve orders needed to complete a market order.  Subsequent call to `match' must be called with the `marketOrderID` that is returned.
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: marketOrder
+          description: The match request array.  One and only one of marketOrderID and targetOrderHash should be included.
+          required: true
+          schema:
+            type: object
+            properties:
+              tokenToBuy:
+                $ref: '#/definitions/EthAddress'
+              tokenToSell:
+                $ref: '#/definitions/EthAddress'
+              amountToBuy:
+                $ref: '#/definitions/NumberString'
+      responses:
+        '400':
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/ErrorModel'
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              marketOrderID:
+                type: string
+              unsignedOrder:
+                $ref: '#/definitions/UnsignedOrder'
+      # security:
+      #   - 0cean_auth:
+      #       - 'write:orders'
+      #       - 'read:orders'
+securityDefinitions:
+  0cean_auth:
+    type: oauth2
+    authorizationUrl: 'http://the0cean.com/oauth/dialog'
+    flow: implicit
+    scopes:
+      'write:orders': create modify and fill orders
+      'read:orders': read existing orders and history
+definitions:
+  ErrorModel:
+    type: object
+    required:
+    - message
+    - code
+    properties:
+      message:
+        type: string
+      code:
+        type: integer
+  EthAddress:
+    type: string
+    pattern: '^(0x)?[0-9a-fA-F]{40}$'
+  ECSignature:
+    type: object
+    properties:
+      v:
+        type: integer
+        format: int64
+      r:
+        type: string
+      s:
+        type: string
+  NumberString:
+    type: string
+    pattern: '^[0-9]*'
+  OrderHash:
+    type: string
+    pattern: '^(0x)?[0-9a-fA-F]{64}$'
+  SignedOrder:
+    type: object
+    required:
+      - exchange
+      - makerAddress
+      - takerAddress
+      - makerToken
+      - takerToken
+      - feeRecipient
+      - makerTokenAmount
+      - takerTokenAmount
+      - makerFee
+      - takerFee
+      - expirationTimestampInSec
+      - salt
+      - orderHash
+      - ecSignature
+    properties:
+      exchange:
+        $ref: '#/definitions/EthAddress'
+      makerAddress:
+        $ref: '#/definitions/EthAddress'
+      takerAddress:
+        $ref: '#/definitions/EthAddress'
+      makerToken:
+        $ref: '#/definitions/EthAddress'
+      takerToken:
+        $ref: '#/definitions/EthAddress'
+      feeRecipient:
+        $ref: '#/definitions/EthAddress'
+      makerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      takerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      makerFee:
+        $ref: '#/definitions/NumberString'
+      takerFee:
+        $ref: '#/definitions/NumberString'
+      expirationTimestampInSec:
+        $ref: '#/definitions/NumberString'
+      salt:
+        $ref: '#/definitions/NumberString'
+      orderHash:
+        $ref: '#/definitions/OrderHash'
+      ecSignature:
+        $ref: '#/definitions/ECSignature'
+    xml:
+      name: SignedOrder
+  UnsignedOrder:
+    type: object
+    required:
+      - exchange
+      - makerAddress
+      - takerAddress
+      - makerToken
+      - takerToken
+      - feeRecipient
+      - makerTokenAmount
+      - takerTokenAmount
+      - makerFee
+      - takerFee
+      - expirationTimestampInSec
+      - salt
+    properties:
+      exchange:
+        $ref: '#/definitions/EthAddress'
+      makerAddress:
+        $ref: '#/definitions/EthAddress'
+      takerAddress:
+        $ref: '#/definitions/EthAddress'
+      makerToken:
+        $ref: '#/definitions/EthAddress'
+      takerToken:
+        $ref: '#/definitions/EthAddress'
+      feeRecipient:
+        $ref: '#/definitions/EthAddress'
+      makerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      takerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      makerFee:
+        $ref: '#/definitions/NumberString'
+      takerFee:
+        $ref: '#/definitions/NumberString'
+      expirationTimestampInSec:
+        $ref: '#/definitions/NumberString'
+      salt:
+        $ref: '#/definitions/NumberString'
+    xml:
+      name: UnsignedOrder
+  MatchRequest:
+    type: object
+    required:
+      - signedOrder
+    properties:
+      signedOrder:
+        $ref: '#/definitions/SignedOrder'
+      marketOrderID:
+        type: string
+      targetOrderHash:
+        $ref: '#/definitions/OrderHash'
+  OrderBookOrder:
+    type: object
+    properties:
+      price:
+        type: number
+      takerAddress:
+        $ref: '#/definitions/EthAddress'
+      exchange:
+        $ref: '#/definitions/EthAddress'
+      feeRecipient:
+        $ref: '#/definitions/EthAddress'
+      availableMakerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      availableTakerTokenAmount:
+        $ref: '#/definitions/NumberString'
+      expirationTimestampInSec:
+        $ref: '#/definitions/NumberString'
+      orderHash:
+        $ref: '#/definitions/OrderHash'
+      requiredFee:
+        $ref: '#/definitions/NumberString'
+  OrderBook:
+    type: object
+    required:
+      - front
+    properties:
+      front:
+        type: array
+        items:
+          $ref: '#/definitions/OrderBookOrder'
+      back:
+        type: array
+        items:
+          $ref: '#/definitions/OrderBookOrder'
+  TokenPairs:
+    type: array
+    items:
+      $ref: '#/definitions/TokenPair'
+  TokenPair:
+    type: object
+    required:
+      - tokenA
+      - tokenB
+    properties:
+      tokenA:
+        $ref: '#/definitions/Token'
+      tokenB:
+        $ref: '#/definitions/Token'
+  Token:
+    type: object
+    required:
+      - address
+      - symbol
+      - decimals
+      - minAmount
+      - maxAmount
+      - precision
+    properties:
+      address:
+        $ref: '#/definitions/EthAddress'
+      symbol:
+        type: string
+      decimals:
+        type: number
+      minAmount:
+        type: string
+      maxAmount:
+        type: string
+      precision:
+        type: number
+  CandleStick:
+    type: object
+    properties:
+      date:
+        type: string
+      high:
+        type: number
+      low:
+        type: number
+      open:
+        type: number
+      close:
+        type: number
+      baseVolume:
+        $ref: '#/definitions/NumberString'
+      quoteVolume:
+        $ref: '#/definitions/NumberString'
