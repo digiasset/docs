@@ -52,25 +52,19 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: makerToken
+        - name: baseToken
           in: query
-          description: The token specified as the makerToken for all orders in the book
+          description: The base token for the book
           required: true
           type: string
-        - name: takerToken
+        - name: quoteToken
           in: query
-          description: The token specified as the takerToken for all orders in the book
+          description: The quote token for the book
           required: true
           type: string
-        - name: bothSides
+        - name: depth
           in: query
-          description: Whether to return the opposite side of the orderbook with maker and taker tokens reversed
-          required: false
-          type: boolean
-          default: false
-        - name: priceWindow
-          in: query
-          description: If specified the order book list will be limited to orders with prices less than the best price plus the priceWindow
+          description: If specified, the number of bids and the number of asks that will be returned
           required: false
           type: number
       responses:
@@ -142,6 +136,8 @@ paths:
       responses:
         '405':
           description: Invalid input
+        '404':
+          description: Not found
       # security:
       #   - 0cean_auth:
       #       - 'write:orders'
@@ -174,6 +170,8 @@ paths:
       responses:
         '405':
           description: Invalid input
+        '404':
+          description: Not found
       # security:
       #   - 0cean_auth:
       #       - 'write:orders'
@@ -291,17 +289,17 @@ paths:
         - application/json
       parameters:
         - in: body
-          name: matchRequest
+          name: marketOrder
           description: The match request array.  One and only one of marketOrderID and targetOrderHash should be included.
           required: true
           schema:
             type: object
             properties:
-              baseToken:
+              tokenToBuy:
                 $ref: '#/definitions/EthAddress'
-              quoteToken:
+              tokenToSell:
                 $ref: '#/definitions/EthAddress'
-              baseTokenAmount:
+              amountToBuy:
                 $ref: '#/definitions/NumberString'
       responses:
         '400':
@@ -321,14 +319,14 @@ paths:
       #   - 0cean_auth:
       #       - 'write:orders'
       #       - 'read:orders'
-# securityDefinitions:
-  # 0cean_auth:
-  #   type: oauth2
-  #   authorizationUrl: 'http://the0cean.com/oauth/dialog'
-  #   flow: implicit
-  #   scopes:
-  #     'write:orders': create modify and fill orders
-  #     'read:orders': read existing orders and history
+securityDefinitions:
+  0cean_auth:
+    type: oauth2
+    authorizationUrl: 'http://the0cean.com/oauth/dialog'
+    flow: implicit
+    scopes:
+      'write:orders': create modify and fill orders
+      'read:orders': read existing orders and history
 definitions:
   ErrorModel:
     type: object
@@ -543,7 +541,7 @@ definitions:
         type: number
       close:
         type: number
-      volume:
+      baseVolume:
         $ref: '#/definitions/NumberString'
-      weightedAverage:
-        type: number
+      quoteVolume:
+        $ref: '#/definitions/NumberString'
